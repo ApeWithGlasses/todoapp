@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
+import { Task } from '../../models/task.model';
 
 @Component({
   selector: 'app-home',
@@ -9,11 +10,22 @@ import { Component, signal } from '@angular/core';
   styleUrl: './home.component.css'
 })
 export class HomeComponent {
-  tasks = signal([
-    'Instalar Angular CLI',
-    'Crear proyecto',
-    'Crear componentes',
-    'Crear servicio',
+  tasks = signal<Task[]>([
+    {
+      id: Date.now(),
+      title: 'Crear proyecto',
+      completed: false
+    },
+    {
+      id: Date.now(),
+      title: 'Crear componentes',
+      completed: false
+    },
+    {
+      id: Date.now(),
+      title: 'Crear servicio',
+      completed: false
+    },
   ]);
 
   // How to add a new task into tasks with signals
@@ -21,8 +33,39 @@ export class HomeComponent {
     const input = event.target as HTMLInputElement;
     const newTask = input.value;
     // Recieves his last state and create a new state with the new task at the end of the list
-    this.tasks.update((tasks) => [...tasks, newTask]);
+    this.addTask(newTask)
     input.value = '';
+  }
+
+  // Separates responsabilities and how to add an object to a signal
+  addTask(title: string) {
+    const newTask = {
+      id: Date.now(),
+      title,
+      completed: false
+    }
+    this.tasks.update((tasks) => [...tasks, newTask]);
+  }
+
+  updateTask(index: number) {
+    this.tasks.update((tasks) => {
+      return tasks.map((task, position) => {
+        if (position == index) {
+          return {
+            ...task,
+            completed: !task.completed
+          }
+        }
+        return task;
+      });
+    })
+  }
+
+  toggleComplete(index: number) {
+    this.tasks.update(tasks => {
+      tasks[index] && (tasks[index].completed = !tasks[index].completed)
+      return tasks;
+    })
   }
 
   // How to delete a task
