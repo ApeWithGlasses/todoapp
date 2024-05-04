@@ -41,7 +41,7 @@ export class HomeComponent {
   // How to add a new task into tasks with signals
   changeHandler() {
     if (this.newTaskCtrl.valid) {
-      const value = this.newTaskCtrl.value;
+      const value = this.newTaskCtrl.value.trim();
       this.addTask(value);
       this.newTaskCtrl.setValue('');
     }

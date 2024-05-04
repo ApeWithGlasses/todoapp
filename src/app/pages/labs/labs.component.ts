@@ -28,6 +28,9 @@ export class LabsComponent {
   });
 
   colorCtrl = new FormControl();
+  widthCtrl = new FormControl(50, {
+    nonNullable: true
+  });
 
   constructor() {
     // Read the value of the ctrl from the logic
