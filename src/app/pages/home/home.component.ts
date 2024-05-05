@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, signal } from '@angular/core';
+import { Component, Injector, computed, effect, inject, signal } from '@angular/core';
 import { Task } from '../../models/task.model';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Filters } from '../../models/filters.enum';
@@ -12,23 +12,30 @@ import { Filters } from '../../models/filters.enum';
   styleUrl: './home.component.css'
 })
 export class HomeComponent {
-  tasks = signal<Task[]>([
-    {
-      id: Date.now(),
-      title: 'Crear proyecto',
-      completed: false
-    },
-    {
-      id: Date.now(),
-      title: 'Crear componentes',
-      completed: false
-    },
-    {
-      id: Date.now(),
-      title: 'Crear servicio',
-      completed: false
-    },
-  ]);
+  tasks = signal<Task[]>([]);
+
+  injector = inject(Injector);
+
+  constructor() {
+
+  }
+
+  ngOnInit(): void {
+    const storage = localStorage.getItem('tasks');
+    if (storage) {
+      const tasks = JSON.parse(storage);
+      this.tasks.set(tasks);
+    }
+    this.trackTasks();
+  }
+
+  trackTasks() {
+    effect(() => {
+      const tasks = this.tasks();
+      console.log(tasks);
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    }, { injector: this.injector });
+  }
 
   Filters = Filters;
   currentFilter = signal<Filters>(Filters.All);
