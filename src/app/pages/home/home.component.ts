@@ -83,4 +83,38 @@ export class HomeComponent {
   deleteTask(index: number) {
     this.tasks.update((tasks) => tasks.filter((task, position) => position !== index));
   }
+
+  updateTaskEditingMode(index: number) {
+    this.tasks.update(prevState => {
+      return prevState.map((task, position) => {
+        if (position === index) {
+          return {
+            ...task,
+            isEditing: true
+          }
+        }
+        return {
+          ...task,
+          isEditing: false
+        };
+      });
+    });
+  }
+
+  updateTaskText(index: number, event: Event) {
+    const input = event.target as HTMLInputElement;
+    const newTitle = input.value;
+    this.tasks.update(prevState => {
+      return prevState.map((task, position) => {
+        if (position === index) {
+          return {
+            ...task,
+            title: newTitle,
+            isEditing: false
+          }
+        }
+        return task;
+      });
+    });
+  }
 }
