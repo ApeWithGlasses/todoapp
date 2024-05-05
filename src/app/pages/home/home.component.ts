@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import { Task } from '../../models/task.model';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Filters } from '../../models/filters.enum';
 
 @Component({
   selector: 'app-home',
@@ -28,6 +29,21 @@ export class HomeComponent {
       completed: false
     },
   ]);
+
+  Filters = Filters;
+  currentFilter = signal<Filters>(Filters.All);
+  tasksByFilter = computed(() => {
+    const filter = this.currentFilter();
+    const tasks = this.tasks();
+
+    const filterMap: Record<Filters, () => Task[]> = {
+      [Filters.Completed]: () => tasks.filter((task) => task.completed),
+      [Filters.Pending]: () => tasks.filter((task) => !task.completed),
+      [Filters.All]: () => tasks,
+    }
+
+    return filterMap[filter]();
+  });
 
   newTaskCtrl = new FormControl('', {
     nonNullable: true,
@@ -80,8 +96,8 @@ export class HomeComponent {
 
   // How to delete a task
   // Recieves the position of the element
-  deleteTask(index: number) {
-    this.tasks.update((tasks) => tasks.filter((task, position) => position !== index));
+  deleteTask(id: number) {
+    this.tasks.update((tasks) => tasks.filter((task) => task.id !== id));
   }
 
   updateTaskEditingMode(index: number) {
@@ -116,5 +132,9 @@ export class HomeComponent {
         return task;
       });
     });
+  }
+
+  changeFilter(filter: Filters) {
+    this.currentFilter.set(filter);
   }
 }
